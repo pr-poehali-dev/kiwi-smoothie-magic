@@ -9,7 +9,11 @@ import { MagneticButton } from "@/components/magnetic-button"
 import { useRef, useEffect, useState, type FormEvent } from "react"
 import func2url from "../../backend/func2url.json"
 
-export default function Index() {
+interface Props {
+  onLogin: (user: { email: string }) => void
+}
+
+export default function Index({ onLogin }: Props) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [currentSection, setCurrentSection] = useState(0)
   const [isLoaded, setIsLoaded] = useState(false)
@@ -20,10 +24,6 @@ export default function Index() {
   const [loginPassword, setLoginPassword] = useState("")
   const [loginError, setLoginError] = useState("")
   const [loginLoading, setLoginLoading] = useState(false)
-  const [user, setUser] = useState<{ email: string } | null>(() => {
-    const saved = localStorage.getItem("ep_user")
-    return saved ? JSON.parse(saved) : null
-  })
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault()
@@ -39,9 +39,7 @@ export default function Index() {
       if (!res.ok) {
         setLoginError(data.error || "Ошибка входа")
       } else {
-        const u = { email: data.email }
-        setUser(u)
-        localStorage.setItem("ep_user", JSON.stringify(u))
+        onLogin({ email: data.email })
         setLoginOpen(false)
         setLoginEmail("")
         setLoginPassword("")
@@ -53,10 +51,6 @@ export default function Index() {
     }
   }
 
-  const handleLogout = () => {
-    setUser(null)
-    localStorage.removeItem("ep_user")
-  }
   const touchStartX = useRef(0)
   const shaderContainerRef = useRef<HTMLDivElement>(null)
   const scrollThrottleRef = useRef<number>()
@@ -217,24 +211,12 @@ export default function Index() {
           <MagneticButton variant="secondary" onClick={() => scrollToSection(4)}>
             Записаться
           </MagneticButton>
-          {user ? (
-            <div className="flex items-center gap-2">
-              <span className="hidden font-mono text-xs text-foreground/70 md:block">{user.email}</span>
-              <button
-                onClick={handleLogout}
-                className="rounded-lg border border-foreground/20 bg-foreground/10 px-3 py-1.5 font-mono text-xs text-foreground/80 backdrop-blur-md transition-all hover:bg-foreground/20"
-              >
-                Выйти
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={() => setLoginOpen(true)}
-              className="rounded-lg border border-foreground/20 bg-foreground/10 px-4 py-2 font-sans text-sm font-medium text-foreground backdrop-blur-md transition-all hover:bg-foreground/20"
-            >
-              Войти
-            </button>
-          )}
+          <button
+            onClick={() => setLoginOpen(true)}
+            className="rounded-lg border border-foreground/20 bg-foreground/10 px-4 py-2 font-sans text-sm font-medium text-foreground backdrop-blur-md transition-all hover:bg-foreground/20"
+          >
+            Войти
+          </button>
         </div>
       </nav>
 

@@ -1,0 +1,13 @@
+{
+  "tests": [
+    {
+      "name": "Get events list",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {"events": "array"},
+
+      "bodyMatcher": "partial"
+    }
+  ]
+}
